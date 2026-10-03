@@ -169,7 +169,7 @@ fn writeFormatInformation(pixels: BitMatrix, ecLevel: ErrorCorrectionLevel, mask
     var encoded = format_info.encodeFormatInfo(format);
     encoded ^= FORMAT_INFO_MASK;
 
-    var bits = [_]u1{0} ** 15;
+    var bits: [15]u1 = @splat(0);
     utils.splitIntoBits(u15, encoded, &bits);
 
     // ========= Top left =========
@@ -213,7 +213,7 @@ fn writeVersionInformation(pixels: BitMatrix, version: usize) void {
 
     const encoded = version_info.encodeVersionInfo(@intCast(version));
 
-    var bits = [_]u1{0} ** 18;
+    var bits: [18]u1 = @splat(0);
     utils.splitIntoBits(u18, encoded, &bits);
 
     for (0..6) |i| {

@@ -3,7 +3,6 @@ const CreateOptions = @import("index.zig").CreateOptions;
 const ErrorCorrectionLevel = @import("error-correction.zig").ErrorCorrectionLevel;
 
 fn printUsage() void {
-    const stderr = std.io.getStdErr().writer();
     const usageString =
         \\Usage: qr [options] <message>
         \\
@@ -20,12 +19,11 @@ fn printUsage() void {
         \\
     ;
 
-    stderr.print(usageString, .{}) catch {};
+    std.debug.print("{s}", .{usageString});
 }
 
 fn exitWithErrorMessage(message: [:0]const u8) noreturn {
-    const stderr = std.io.getStdErr().writer();
-    stderr.print("error: {s}, see --help for usage\n", .{message}) catch {};
+    std.debug.print("error: {s}, see --help for usage\n", .{message});
     std.process.exit(1);
 }
 
@@ -33,7 +31,7 @@ fn strEq(arg: [:0]const u8, str: [:0]const u8) bool {
     return std.mem.eql(u8, arg, str);
 }
 
-fn parseECLevel(args: [][:0]const u8, i: *usize, ecLevel: *?ErrorCorrectionLevel) void {
+fn parseECLevel(args: []const [:0]const u8, i: *usize, ecLevel: *?ErrorCorrectionLevel) void {
     if (ecLevel.* != null) {
         exitWithErrorMessage("duplicate argument for -e");
     }
@@ -58,14 +56,14 @@ fn parseECLevel(args: [][:0]const u8, i: *usize, ecLevel: *?ErrorCorrectionLevel
     }
 }
 
-fn parseMessage(args: [][:0]const u8, i: *usize, message: *?[:0]const u8) void {
+fn parseMessage(args: []const [:0]const u8, i: *usize, message: *?[:0]const u8) void {
     if (message.* != null) {
         exitWithErrorMessage("duplicate message argument");
     }
     message.* = args[i.*];
 }
 
-fn parseQuietZoneSize(args: [][:0]const u8, i: *usize, quietZoneSize: *?usize) void {
+fn parseQuietZoneSize(args: []const [:0]const u8, i: *usize, quietZoneSize: *?usize) void {
     if (quietZoneSize.* != null) {
         exitWithErrorMessage("duplicate argument for -q");
     }
@@ -81,7 +79,7 @@ fn parseQuietZoneSize(args: [][:0]const u8, i: *usize, quietZoneSize: *?usize) v
     quietZoneSize.* = parsedQzone;
 }
 
-pub fn parseCliArgs(args: [][:0]const u8) CreateOptions {
+pub fn parseCliArgs(args: []const [:0]const u8) CreateOptions {
     var message: ?[:0]const u8 = null;
     var ecLevel: ?ErrorCorrectionLevel = null;
     var quietZoneSize: ?usize = null;

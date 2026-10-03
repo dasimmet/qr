@@ -7,12 +7,14 @@ const ANSIColors = struct {
     const BgWhite = "\u{001B}[47m";
 };
 
-pub fn render(matrix: BitMatrix) !void {
-    try printMatrix(matrix, ANSIColors.BgBlack, ANSIColors.BgWhite);
+pub fn render(io: std.Io, matrix: BitMatrix) !void {
+    try printMatrix(io, matrix, ANSIColors.BgBlack, ANSIColors.BgWhite);
 }
 
-fn printMatrix(matrix: BitMatrix, trueColor: []const u8, falseColor: []const u8) !void {
-    const stdout = std.io.getStdOut().writer();
+fn printMatrix(io: std.Io, matrix: BitMatrix, trueColor: []const u8, falseColor: []const u8) !void {
+    var buffer: [1024]u8 = undefined;
+    var stdout_writer = std.Io.File.stdout().writerStreaming(io, &buffer);
+    const stdout = &stdout_writer.interface;
 
     for (0..matrix.size) |r| {
         for (0..matrix.size) |c| {
@@ -23,4 +25,5 @@ fn printMatrix(matrix: BitMatrix, trueColor: []const u8, falseColor: []const u8)
 
         try stdout.print("\n", .{});
     }
+    try stdout.flush();
 }

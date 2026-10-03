@@ -4,16 +4,14 @@ const ansi_renderer = @import("src/ansi-renderer.zig");
 
 const cli = @import("src/cli.zig");
 
-pub fn main() !void {
-    const allocator = std.heap.page_allocator;
-
-    const args = try std.process.argsAlloc(allocator);
-    defer std.process.argsFree(allocator, args);
+pub fn main(init: std.process.Init) !void {
+    const arena = init.arena.allocator();
+    const args = try init.minimal.args.toSlice(arena);
 
     const options = cli.parseCliArgs(args);
 
-    const matrix = try qr_code.create(allocator, options);
+    const matrix = try qr_code.create(arena, options);
     defer matrix.deinit();
 
-    try ansi_renderer.render(matrix);
+    try ansi_renderer.render(init.io, matrix);
 }
